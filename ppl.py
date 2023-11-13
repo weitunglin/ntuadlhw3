@@ -69,7 +69,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--base_model_path",
         type=str,
-        default="",
+        default="Taiwan-LLM-7B-v2.0-chat",
         help="Path to the checkpoint of Taiwan-LLM-7B-v2.0-chat. If not set, this script will use "
         "the checkpoint from Huggingface (revision = 5073b2bbc1aa5519acdc865e99832857ef47f7c9)."
     )
@@ -86,6 +86,11 @@ if __name__ == "__main__":
         required=True,
         help="Path to test data."
     )
+    parser.add_argument(
+        "--no_lora",
+        action="store_true"
+    )
+
     args = parser.parse_args()
 
     # Load model
@@ -115,8 +120,9 @@ if __name__ == "__main__":
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token_id = tokenizer.eos_token_id
 
-    # Load LoRA
-    model = PeftModel.from_pretrained(model, args.peft_path)
+    if not args.no_lora:
+        # Load LoRA
+        model = PeftModel.from_pretrained(model, args.peft_path)
 
     with open(args.test_data_path, "r") as f:
         data = json.load(f)
@@ -124,3 +130,4 @@ if __name__ == "__main__":
     model.eval()
     ppl = perplexity(model, tokenizer, data)
     print("Mean perplexity:", ppl["mean_perplexity"])
+

@@ -164,3 +164,6 @@ wandb/
 *.lock
 *.local
 data/
+credential-local
+output/
+Taiwan-LLM-7B-v2.0-chat/
