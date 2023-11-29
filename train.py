@@ -307,6 +307,8 @@ def get_accelerate_model(args, checkpoint_dir):
         device_map = {'': local_rank}
         max_memory = {'': max_memory[local_rank]}
 
+    print(device_map)
+
 
     if args.full_finetune: assert args.bits in [16, 32]
 
@@ -361,6 +363,11 @@ def get_accelerate_model(args, checkpoint_dir):
         trust_remote_code=args.trust_remote_code,
         use_auth_token=args.use_auth_token,
     )
+    print(tokenizer._pad_token)
+    print(tokenizer.pad_token_id)
+    print(model.config.pad_token_id)
+    print(model.config.eos_token_id)
+    print(model.config.bos_token_id)
     if tokenizer._pad_token is None:
         smart_tokenizer_and_embedding_resize(
             special_tokens_dict=dict(pad_token=DEFAULT_PAD_TOKEN),
@@ -380,6 +387,9 @@ def get_accelerate_model(args, checkpoint_dir):
                     model.config.pad_token_id if model.config.pad_token_id != -1 else tokenizer.pad_token_id
                 ),
         })
+    print(tokenizer._eos_token)
+    print(tokenizer._bos_token)
+    print(tokenizer._unk_token)
 
     if not args.full_finetune:
         model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=args.gradient_checkpointing)
@@ -464,6 +474,7 @@ class DataCollatorForCausalLM(object):
         # Extract elements
         sources = [f"{self.tokenizer.bos_token}{example['input']}" for example in instances]
         targets = [f"{example['output']}{self.tokenizer.eos_token}" for example in instances]
+
         # Tokenize
         tokenized_sources_with_prompt = self.tokenizer(
             sources,
