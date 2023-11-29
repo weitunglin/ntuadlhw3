@@ -112,7 +112,10 @@ if __name__ == "__main__":
         "--few_shot",
         action="store_true"
     )
-
+    parser.add_argument(
+        "--do_ppl",
+        action="store_true"
+    )
 
     args = parser.parse_args()
 
@@ -156,11 +159,11 @@ if __name__ == "__main__":
         data = data[:args.num_samples]
 
     model.eval()
-    ppl = perplexity(model, tokenizer, data, few_shot=args.few_shot)
-    print("Mean perplexity:", ppl["mean_perplexity"])
+    if args.do_ppl:
+        ppl = perplexity(model, tokenizer, data, few_shot=args.few_shot)
+        print("Mean perplexity:", ppl["mean_perplexity"])
 
     if not args.no_output:
-
         gen_config = GenerationConfig(
             num_beams=2,
             do_sample=False,
